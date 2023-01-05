@@ -18,6 +18,10 @@ DIGIT    [0-9]
 "//"           {return RELATIVE;}
 "["            {return LBRAC;}
 "]"            {return RBRAC;}
+"("            {return LROBRAC;}
+")"            {return RROBRAC;}
+","            {return COMMA;}
+":"            {return COLON;}
 
 "="            {return EQ;}
 "!="           {return NOT_EQ;}
@@ -27,13 +31,25 @@ DIGIT    [0-9]
 "<="           {return LS_EQ;}
 "contains"     {return CONT;}
 
+"INT"          {return INT;}
+"DBL"          {return DBL;}
+"STR"          {return STR;}
+"BOOL"         {return BOOL;}
+
 "&"            {return AND_SYM;}
 "|"            {return OR_SYM;}
 "!"            {return NOT_SYM;}
 
 ";"            {return END;}
 
-(\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[DIGIT]+)?)   {yylval.decimal = atof(yytext); return NUMBER;}
+(\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[DIGIT]+)?)   {yylval.decimal = atof(yytext); yylval.number = atol(yytext); return NUMBER;}
+
+"ADD"          {return ADD;}
+"DELETE"       {return DELETE;}
+"UPDATE"       {return UPDATE;}
+"FIND"         {return FIND;}
+"JOIN"         {return JOIN;}
+"PARENT"       {return PARENT;}
 
 \"[^"]*\"      {yylval.string = strdup(yytext); ECHO; return STRING;}
 @\"[^"]*\"     {yylval.string = strdup(yytext); ECHO; return KEY;}

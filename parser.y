@@ -16,14 +16,17 @@ int yydebug=1;
 %union{
   char* key;
   char* string;
+  long number;
   double decimal;
 }
+%error-verbose
 
-
-%token ABSOLUTE RELATIVE LBRAC RBRAC END
+%token ADD DELETE UPDATE FIND JOIN PARENT
+%token INT DBL STR BOOL
+%token ABSOLUTE RELATIVE LBRAC RBRAC LROBRAC RROBRAC COMMA COLON END
 %token EQ NOT_EQ LS GR GR_EQ LS_EQ CONT
 %token AND_SYM OR_SYM NOT_SYM
-%token <decimal> NUMBER;
+%token <number, decimal> NUMBER;
 %token <string> STRING;
 %token <key> KEY;
 
@@ -31,8 +34,30 @@ int yydebug=1;
 
 %%
 
-zpath: entry terminal
-     | entry zpath
+zpath: ADD STRING schema path
+     | UPDATE STRING STRING path
+     | DELETE path
+     | FIND path
+     | JOIN path
+     | PARENT path
+
+schema: LROBRAC elements RROBRAC
+
+elements: element COMMA elements
+        | element
+
+element: intschema
+       | dblschema
+       | boolschema
+       | strschema
+
+intschema: INT COLON KEY COLON NUMBER
+dblschema: DBL COLON KEY COLON NUMBER
+boolschema: BOOL COLON KEY COLON STRING
+strschema: STR COLON KEY COLON STRING
+
+path: entry terminal
+    | entry path
 
 entry: ABSOLUTE base
      | ABSOLUTE KEY terminal
@@ -54,7 +79,6 @@ sym: AND_SYM
 
 predicate: LBRAC NUMBER RBRAC
          | LBRAC KEY op STRING RBRAC
-         | LBRAC KEY op NUMBER RBRAC
          | LBRAC KEY op KEY RBRAC
 
 op: EQ
