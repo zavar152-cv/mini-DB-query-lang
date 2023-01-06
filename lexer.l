@@ -2,6 +2,7 @@
 %{
 #include "parser.h"
 #include <string.h>
+#include <math.h>
 
 extern void yyerror(const char * message);
 #define ECHO fwrite(yytext, yyleng, 1, yyout)
@@ -42,7 +43,17 @@ DIGIT    [0-9]
 
 ";"            {return END;}
 
-(\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[DIGIT]+)?)   {yylval.decimal = atof(yytext); yylval.number = atol(yytext); return NUMBER;}
+(\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[DIGIT]+)?)   {
+      double f = atof(yytext);
+      if (ceil(f) == f) {
+        yylval.number = atoi(yytext);
+        return NUMBER;
+      } else {
+        yylval.decimal = f;
+        return DNUMBER;
+      }
+
+}
 
 "ADD"          {return ADD;}
 "DELETE"       {return DELETE;}

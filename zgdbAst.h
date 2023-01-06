@@ -12,84 +12,136 @@
  * ABSOLUTE_PATH checks from context by only one depth step
  * RELATIVE_PATH checks from context and go through whole tree
  */
-typedef enum pathType {
-    ABSOLUTE_PATH = 0,
-    RELATIVE_PATH
-} pathType;
+typedef enum astPathType {
+    AST_ABSOLUTE_PATH = 0,
+    AST_RELATIVE_PATH
+} astPathType;
 
 /*
  * DOCUMENT_STEP this step is document name
  * ELEMENT_STEP this step is element name
  */
-typedef enum stepType {
-    DOCUMENT_STEP = 0,
-    ELEMENT_STEP
-} stepType;
+typedef enum astStepType {
+    AST_DOCUMENT_STEP = 0,
+    AST_ELEMENT_STEP
+} astStepType;
 
 /*
  * NONE for first step only
  */
-typedef enum logOperator {
-    NONE = 0,
-    AND,
-    OR
-} logOperator;
+typedef enum astLogOperator {
+    AST_NONE = 0,
+    AST_AND,
+    AST_OR
+} astLogOperator;
 
-typedef enum compOperator {
-    EQUALS = 0,
-    NOT_EQUALS,
-    GREATER,
-    LESS,
-    EQ_GREATER,
-    EQ_LESS,
-    CONTAINS
-} compOperator;
+typedef enum astCompOperator {
+    AST_EQUALS = 0,
+    AST_NOT_EQUALS,
+    AST_GREATER,
+    AST_LESS,
+    AST_EQ_GREATER,
+    AST_EQ_LESS,
+    AST_CONTAINS
+} astCompOperator;
 
 /*
  * BY_DOCUMENT_NUMBER - index of document in result list
  * BY_ELEMENT_VALUE - check value of element using compOperator (see checkValue struct)
  */
-typedef enum predicateType {
-    BY_DOCUMENT_NUMBER = 0,
-    BY_ELEMENT_VALUE
-} predicateType;
+typedef enum astPredicateType {
+    AST_BY_DOCUMENT_NUMBER = 0,
+    AST_BY_ELEMENT_VALUE,
+    AST_BY_ELEMENT
+} astPredicateType;
 
-typedef struct checkType {
-    char key[13];
-    compOperator operator;
+typedef struct astCheckType {
+    char* key;
+    astCompOperator operator;
     char* input;
-} checkType;
+} astCheckType;
 
-typedef struct predicate predicate;
+typedef struct astCheckTypeElement {
+    char* key1;
+    astCompOperator operator;
+    char* key2;
+} astCheckTypeElement;
 
-typedef struct predicate {
-    logOperator logOp;
+typedef struct astPredicate astPredicate;
+
+typedef struct astPredicate {
+    astLogOperator logOp;
     bool isInverted;
-    predicate* nextPredicate;
-    enum predicateType type;
+    astPredicate* nextPredicate;
+    enum astPredicateType type;
     union {
         uint64_t index;
-        checkType byValue;
+        astCheckType byValue;
+        astCheckTypeElement byElement;
     };
-} predicate;
+} astPredicate;
 
-typedef struct step {
-    pathType pType;
-    char stepName[13];
-    stepType sType;
-    predicate* pred;
-} step;
+typedef struct astStep astStep;
 
-typedef struct path {
-    step* steps;
+typedef struct astStep {
+    astPathType pType;
+    char* stepName;
+    astStepType sType;
+    astPredicate* pred;
+    astStep* nextStep;
+} astStep;
+
+typedef struct astPath {
+    astStep* firstStep;
     size_t size;
-    size_t capacity;
-} path;
+} astPath;
 
-path createPath(size_t n);
+typedef enum requestType {
+    AST_ADD = 0,
+    AST_DELETE,
+    AST_UPDATE,
+    AST_FIND,
+    AST_JOIN,
+    AST_PARENT
+} requestType;
 
-void addStep(path* p, step newStep);
+typedef enum schemaElementType {
+    SCHEMA_TYPE_INT = 0x01,
+    SCHEMA_TYPE_DOUBLE = 0x02,
+    SCHEMA_TYPE_BOOLEAN = 0x03,
+    SCHEMA_TYPE_STRING = 0x04,
+} schemaElementType;
 
-void destroyPath(path* p);
+
+typedef struct astAddSchema astAddSchema;
+
+typedef struct astAddSchema {
+    schemaElementType type;
+    char* name;
+    union {
+        int32_t integer;
+        double dbl;
+        bool boolean;
+        char* string;
+    };
+    astAddSchema* next;
+} astAddSchema;
+
+typedef struct ast {
+    requestType type;
+    union {
+        struct {
+            char* docName;
+            astAddSchema* first;
+        };
+        struct {
+            char* elName;
+            char* value;
+        };
+    };
+    astPath path;
+} ast;
+
+ast getAst();
 
 #endif
