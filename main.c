@@ -17,5 +17,8 @@ int main(int argc, char **argv) {
     yyparse();
     ast tree = getAst();
     printAst(&tree);
+
+    printf("%zu", getSize());
+
     return 0;
 }

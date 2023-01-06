@@ -132,4 +132,6 @@ ast getAst();
 
 void printAst(ast* tree);
 
+size_t getSize();
+
 #endif
