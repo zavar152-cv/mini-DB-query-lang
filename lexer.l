@@ -31,6 +31,7 @@ DIGIT    [0-9]
 ">="           {return GR_EQ;}
 "<="           {return LS_EQ;}
 "contains"     {return CONT;}
+"ON"           {return ON;}
 
 "INT"          {return INT;}
 "DBL"          {return DBL;}

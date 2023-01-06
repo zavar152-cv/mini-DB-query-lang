@@ -1,1 +1,1 @@
-ADD "new" (INT:@"key":2) /@"parent";
+JOIN [@"key"="lol"]|[@"key2">"3"] ON /"parent";

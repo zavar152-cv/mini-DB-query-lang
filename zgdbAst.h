@@ -6,29 +6,16 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-/*
- * context - current node;
- *
- * ABSOLUTE_PATH checks from context by only one depth step
- * RELATIVE_PATH checks from context and go through whole tree
- */
 typedef enum astPathType {
     AST_ABSOLUTE_PATH = 0,
     AST_RELATIVE_PATH
 } astPathType;
 
-/*
- * DOCUMENT_STEP this step is document name
- * ELEMENT_STEP this step is element name
- */
 typedef enum astStepType {
     AST_DOCUMENT_STEP = 0,
     AST_ELEMENT_STEP
 } astStepType;
 
-/*
- * NONE for first step only
- */
 typedef enum astLogOperator {
     AST_NONE = 0,
     AST_AND,
@@ -45,10 +32,6 @@ typedef enum astCompOperator {
     AST_CONTAINS
 } astCompOperator;
 
-/*
- * BY_DOCUMENT_NUMBER - index of document in result list
- * BY_ELEMENT_VALUE - check value of element using compOperator (see checkValue struct)
- */
 typedef enum astPredicateType {
     AST_BY_DOCUMENT_NUMBER = 0,
     AST_BY_ELEMENT_VALUE,
@@ -112,7 +95,6 @@ typedef enum schemaElementType {
     SCHEMA_TYPE_STRING = 0x04,
 } schemaElementType;
 
-
 typedef struct astAddSchema astAddSchema;
 
 typedef struct astAddSchema {
@@ -137,6 +119,9 @@ typedef struct ast {
         struct {
             char* elName;
             char* value;
+        };
+        struct {
+            astPredicate* pred;
         };
     };
     astPath path;

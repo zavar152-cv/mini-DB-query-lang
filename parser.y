@@ -34,7 +34,7 @@ int yydebug=1;
 
 %token ADD DELETE UPDATE FIND JOIN PARENT
 %token INT DBL STR BOOL
-%token ABSOLUTE RELATIVE LBRAC RBRAC LROBRAC RROBRAC COMMA COLON END
+%token ABSOLUTE RELATIVE LBRAC RBRAC LROBRAC RROBRAC COMMA COLON ON END
 %token EQ NOT_EQ LS GR GR_EQ LS_EQ CONT
 %token AND_SYM OR_SYM NOT_SYM
 %token <decimal> DNUMBER
@@ -59,7 +59,7 @@ add: ADD STRING {createAddRequest($2);}
 update: UPDATE STRING STRING {createUpdateRequest($2, $3);}
 delete: DELETE {createDeleteRequest();}
 find: FIND {createFindRequest();}
-join: JOIN {createJoinRequest();}
+join: JOIN {createJoinRequest();} jpredicates ON
 parent: PARENT {createParentRequest();}
 
 schema: LROBRAC elements RROBRAC
@@ -110,6 +110,9 @@ base: STRING {aStep->stepName = strdup($1); cleanString(aStep->stepName);}
 
 predicates: not predicate {inv = $1; addPredicate();}
           | not predicate sym {inv = $1; addPredicate(); symbolValue = $3;} predicates
+
+jpredicates: not predicate {inv = $1; addJPredicate();}
+           | not predicate sym {inv = $1; addJPredicate(); symbolValue = $3;} jpredicates
 
 sym: AND_SYM {$$ = 1;}
    | OR_SYM {$$ = 2;}
@@ -304,6 +307,23 @@ void addPredicate() {
         aStep->pred->isInverted = inv;
     } else {
         astPredicate* temp = aStep->pred;
+        while(temp->nextPredicate != NULL) {
+            temp = temp->nextPredicate;
+        }
+        temp->nextPredicate = aPredicate;
+        temp->nextPredicate->logOp = symbolValue;
+        temp->nextPredicate->isInverted = inv;
+    }
+}
+
+void addJPredicate() {
+    if(isFirstPred) {
+        isFirstPred = false;
+        tree.pred = aPredicate;
+        tree.pred->logOp = AST_NONE;
+        tree.pred->isInverted = inv;
+    } else {
+        astPredicate* temp = tree.pred;
         while(temp->nextPredicate != NULL) {
             temp = temp->nextPredicate;
         }
