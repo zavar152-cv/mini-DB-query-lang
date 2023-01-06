@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef enum astPathType {
     AST_ABSOLUTE_PATH = 0,
@@ -128,5 +129,7 @@ typedef struct ast {
 } ast;
 
 ast getAst();
+
+void printAst(ast* tree);
 
 #endif

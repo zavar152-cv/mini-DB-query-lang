@@ -63,8 +63,8 @@ DIGIT    [0-9]
 "JOIN"         {return JOIN;}
 "PARENT"       {return PARENT;}
 
-\"[^"]*\"      {yylval.string = strdup(yytext); ECHO; return STRING;}
-@\"[^"]*\"     {yylval.string = strdup(yytext); ECHO; return KEY;}
+\"[^"]*\"      {yylval.string = strdup(yytext); return STRING;}
+@\"[^"]*\"     {yylval.string = strdup(yytext); return KEY;}
 
 [ \t\r\n]+     {/* ignore spaces */}
 

@@ -56,7 +56,7 @@ zpath: add schema path {YYACCEPT;}
      | parent path {YYACCEPT;}
 
 add: ADD STRING {createAddRequest($2);}
-update: UPDATE STRING STRING {createUpdateRequest($2, $3);}
+update: UPDATE KEY STRING {createUpdateRequest($2, $3);}
 delete: DELETE {createDeleteRequest();}
 find: FIND {createFindRequest();}
 join: JOIN {createJoinRequest();} jpredicates ON
@@ -147,7 +147,7 @@ void createAddRequest(char* name) {
 
 void createUpdateRequest(char* name, char* input) {
     tree.type = AST_UPDATE; 
-    cleanString(name);
+    cleanKey(name);
     tree.elName = strdup(name);
     cleanString(input);
     tree.value = strdup(input); 
