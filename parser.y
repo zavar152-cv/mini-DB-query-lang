@@ -17,6 +17,8 @@ int64_t symbolValue;
 bool isFirstPred = true;
 bool inv = false;
 
+size_t mallocSize = 0;
+
 // gives good debug information
 int yydebug=1;
 
@@ -82,23 +84,27 @@ path: entry {addStep();} terminal
 
 entry: ABSOLUTE {
                  aStep = (astStep*) malloc(sizeof(astStep));
+                 mallocSize += sizeof(astStep);
                  aStep->pType = AST_ABSOLUTE_PATH;
                  aStep->sType = AST_DOCUMENT_STEP;
                  isFirstPred = true;
                 } base
      | ABSOLUTE {
                  aStep = (astStep*) malloc(sizeof(astStep));
+                 mallocSize += sizeof(astStep);
                  aStep->pType = AST_ABSOLUTE_PATH;
                  aStep->sType = AST_ELEMENT_STEP;
                 } KEY {aStep->stepName = strdup($3); cleanKey(aStep->stepName);}
      | RELATIVE {
                  aStep = (astStep*) malloc(sizeof(astStep));
+                 mallocSize += sizeof(astStep);
                  aStep->pType = AST_RELATIVE_PATH;
                  aStep->sType = AST_DOCUMENT_STEP;
                  isFirstPred = true;
                 } base
      | RELATIVE {
                  aStep = (astStep*) malloc(sizeof(astStep));
+                 mallocSize += sizeof(astStep);
                  aStep->pType = AST_RELATIVE_PATH;
                  aStep->sType = AST_ELEMENT_STEP;
                 } KEY {aStep->stepName = strdup($3); cleanKey(aStep->stepName);}
@@ -172,6 +178,7 @@ void createParentRequest() {
 void addIntSchema(char* name, int32_t v) {
     if(tree.first == NULL) {
         tree.first = (astAddSchema*) malloc(sizeof(astAddSchema));
+        mallocSize += sizeof(astAddSchema);
         tree.first->type = SCHEMA_TYPE_INT;
         cleanKey(name);
         tree.first->name = strdup(name);
@@ -182,6 +189,7 @@ void addIntSchema(char* name, int32_t v) {
             temp = temp->next;
         }
         temp->next = (astAddSchema*) malloc(sizeof(astAddSchema));
+        mallocSize += sizeof(astAddSchema);
         temp->next->type = SCHEMA_TYPE_INT;
         cleanKey(name);
         temp->next->name = strdup(name);
@@ -193,6 +201,7 @@ void addIntSchema(char* name, int32_t v) {
 void addDblSchema(char* name, double v) {
     if(tree.first == NULL) {
         tree.first = (astAddSchema*) malloc(sizeof(astAddSchema));
+        mallocSize += sizeof(astAddSchema);
         tree.first->type = SCHEMA_TYPE_DOUBLE;
         cleanKey(name);
         tree.first->name = strdup(name);
@@ -203,6 +212,7 @@ void addDblSchema(char* name, double v) {
             temp = temp->next;
         }
         temp->next = (astAddSchema*) malloc(sizeof(astAddSchema));
+        mallocSize += sizeof(astAddSchema);
         temp->next->type = SCHEMA_TYPE_DOUBLE;
         cleanKey(name);
         temp->next->name = strdup(name);
@@ -213,6 +223,7 @@ void addDblSchema(char* name, double v) {
 void addBoolSchema(char* name, char* v) {
     if(tree.first == NULL) {
         tree.first = (astAddSchema*) malloc(sizeof(astAddSchema));
+        mallocSize += sizeof(astAddSchema);
         tree.first->type = SCHEMA_TYPE_BOOLEAN;
         cleanKey(name);
         tree.first->name = strdup(name);
@@ -227,6 +238,7 @@ void addBoolSchema(char* name, char* v) {
             temp = temp->next;
         }
         temp->next = (astAddSchema*) malloc(sizeof(astAddSchema));
+        mallocSize += sizeof(astAddSchema);
         temp->next->type = SCHEMA_TYPE_BOOLEAN;
         cleanKey(name);
         temp->next->name = strdup(name);
@@ -241,6 +253,7 @@ void addBoolSchema(char* name, char* v) {
 void addStrSchema(char* name, char* v) {
     if(tree.first == NULL) {
         tree.first = (astAddSchema*) malloc(sizeof(astAddSchema));
+        mallocSize += sizeof(astAddSchema);
         tree.first->type = SCHEMA_TYPE_STRING;
         cleanKey(name);
         tree.first->name = strdup(name);
@@ -252,6 +265,7 @@ void addStrSchema(char* name, char* v) {
             temp = temp->next;
         }
         temp->next = (astAddSchema*) malloc(sizeof(astAddSchema));
+        mallocSize += sizeof(astAddSchema);
         temp->next->type = SCHEMA_TYPE_STRING;
         cleanKey(name);
         temp->next->name = strdup(name);
@@ -268,6 +282,7 @@ void fillIndexPredicate(int32_t v) {
 
 void fillValuePredicate(char* key, astCompOperator op, char* str) {
     aPredicate = (astPredicate*) malloc(sizeof(astPredicate));
+    mallocSize += sizeof(astPredicate);
     cleanKey(key);
     cleanString(str);
     aPredicate->byValue.key = strdup(key);
@@ -278,6 +293,7 @@ void fillValuePredicate(char* key, astCompOperator op, char* str) {
 
 void fillElementPredicate(char* key1, astCompOperator op, char* key2) {
     aPredicate = (astPredicate*) malloc(sizeof(astPredicate));
+    mallocSize += sizeof(astPredicate);
     cleanKey(key1);
     cleanKey(key2);
     aPredicate->byElement.key1 = strdup(key1);
@@ -346,4 +362,8 @@ void cleanKey(char* string) {
 
 ast getAst() {
     return tree;
+}
+
+size_t getSize() {
+    return mallocSize;
 }
